@@ -23,6 +23,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea, Select } from '@/components/ui/input';
 import type { PropertyFormData, PetProfileFormData } from '@/lib/validations';
+import { isDemoMode } from '@/lib/demo-mode';
 
 const STEPS = ['Property Details', 'Pet Profiles', 'Review & Submit'];
 
@@ -225,6 +226,12 @@ export default function NewAnalysisPage() {
   async function handleSubmit() {
     setLoading(true);
     setError(null);
+
+    if (isDemoMode) {
+      await new Promise((r) => setTimeout(r, 1500));
+      router.push('/analyses/mock-analysis-1');
+      return;
+    }
 
     try {
       const formData = new FormData();

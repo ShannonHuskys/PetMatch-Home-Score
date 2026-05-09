@@ -2,7 +2,7 @@
 
 import { PawPrint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { Analysis, Property, PetProfile } from '@/types/database';
+import type { Analysis, Property, PetProfile, SpeciesInsight, UpgradeSuggestion } from '@/types/database';
 
 interface Props {
   analysis: Analysis;
@@ -30,6 +30,10 @@ export function PrintReportClient({ analysis, property, pets, brandingName }: Pr
   const highlights = Array.isArray(analysis.highlights_json) ? analysis.highlights_json : [];
   const overallScore = analysis.overall_score || 0;
   const scoreColor = getScoreColor(overallScore);
+
+  const speciesInsights = analysis.species_insights_json as Record<string, SpeciesInsight> | null;
+  const marketingTips = (Array.isArray(analysis.marketing_tips_json) ? analysis.marketing_tips_json : []) as string[];
+  const upgradeSuggestions = (Array.isArray(analysis.upgrade_suggestions_json) ? analysis.upgrade_suggestions_json : []) as UpgradeSuggestion[];
 
   const subScores = [
     { label: 'Traffic Safety', score: analysis.traffic_safety_score },
@@ -169,6 +173,96 @@ export function PrintReportClient({ analysis, property, pets, brandingName }: Pr
             </div>
           )}
         </div>
+
+        {/* Species-Specific Insights */}
+        {speciesInsights && Object.keys(speciesInsights).length > 0 && (
+          <div className="mb-6">
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              Species-Specific Insights
+            </h3>
+            <div className="space-y-4">
+              {Object.entries(speciesInsights).map(([species, insight]) => (
+                <div key={species} className="rounded-lg border border-gray-100 p-4">
+                  <h4 className="mb-2 text-sm font-semibold capitalize text-gray-800">
+                    {species === 'dog' ? 'Dog Owner' : species === 'cat' ? 'Cat Owner' : species} Perspective
+                  </h4>
+                  {insight.strengths && insight.strengths.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-xs font-medium text-green-600">Strengths</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {insight.strengths.map((s: string, i: number) => (
+                          <li key={i} className="text-xs text-gray-600">+ {s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {insight.concerns && insight.concerns.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-xs font-medium text-amber-600">Concerns</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {insight.concerns.map((c: string, i: number) => (
+                          <li key={i} className="text-xs text-gray-600">- {c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {insight.must_haves && insight.must_haves.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-blue-600">Must-Haves</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {insight.must_haves.map((m: string, i: number) => (
+                          <li key={i} className="text-xs text-gray-600">* {m}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Marketing Tips */}
+        {marketingTips.length > 0 && (
+          <div className="mb-6">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              Marketing Tips for Pet Owners
+            </h3>
+            <ul className="space-y-1">
+              {marketingTips.map((tip: string, i: number) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-400" />
+                  {tip}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Upgrade Suggestions */}
+        {upgradeSuggestions.length > 0 && (
+          <div className="mb-6">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              Suggested Upgrades
+            </h3>
+            <div className="space-y-2">
+              {upgradeSuggestions.map((upgrade: UpgradeSuggestion, i: number) => (
+                <div key={i} className="rounded-lg border border-gray-100 p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-gray-800">{upgrade.name}</p>
+                    {upgrade.estimated_cost && (
+                      <span className="text-xs text-gray-500">{upgrade.estimated_cost}</span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-600">{upgrade.description}</p>
+                  {upgrade.roi_note && (
+                    <p className="mt-1 text-xs text-brand-600">{upgrade.roi_note}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Disclaimer */}
         <div className="mt-8 border-t border-gray-200 pt-4">

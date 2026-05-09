@@ -67,6 +67,9 @@ export async function POST(_request: Request, context: RouteContext) {
       agent_notes: result.agent_notes,
       scoring_details_json: result.scoring_details,
       map_context_json: mapContext,
+      species_insights_json: result.species_insights || {},
+      marketing_tips_json: result.marketing_tips || [],
+      upgrade_suggestions_json: result.upgrade_suggestions || [],
     });
 
     return NextResponse.json({ success: true });
