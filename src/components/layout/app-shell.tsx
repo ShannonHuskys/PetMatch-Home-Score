@@ -11,6 +11,7 @@ import {
   X,
   PawPrint,
   Sparkles,
+  Users,
 } from 'lucide-react';
 const isDemoMode =
   typeof window !== 'undefined' &&
@@ -20,6 +21,7 @@ const isDemoMode =
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Quick Analyze', href: '/analyses/quick', icon: Sparkles },
+  { name: 'Saved Pets', href: '/saved-pets', icon: Users },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

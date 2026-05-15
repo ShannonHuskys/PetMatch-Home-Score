@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -16,6 +16,8 @@ import {
   Plus,
   X,
   Settings2,
+  Users,
+  BookmarkPlus,
 } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardTitle } from '@/components/ui/card';
@@ -23,7 +25,8 @@ import { Button } from '@/components/ui/button';
 import { Input, Textarea, Select } from '@/components/ui/input';
 import { findBreedDefaults, getBreedSuggestions } from '@/lib/breed-defaults';
 import { isDemoMode } from '@/lib/demo-mode';
-import type { PetProfile, FlooringType, FencingType } from '@/types/database';
+import { MOCK_SAVED_PETS } from '@/lib/mock-data';
+import type { PetProfile, FlooringType, FencingType, SavedPet } from '@/types/database';
 
 interface QuickPet {
   name: string;
@@ -37,6 +40,9 @@ interface QuickPet {
   escape_risk: PetProfile['escape_risk'];
   mobility_limitations: string;
   special_notes: string;
+  client_name?: string;
+  save_for_next_time?: boolean;
+  saved_pet_id?: string;
 }
 
 interface ExtractedProperty {
@@ -95,6 +101,55 @@ export default function QuickAnalyzePage() {
   const [error, setError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [breedSuggestions, setBreedSuggestions] = useState<Record<number, string[]>>({});
+  const [savedPets, setSavedPets] = useState<SavedPet[]>([]);
+  const [savedPetsLoading, setSavedPetsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadSavedPets() {
+      if (isDemoMode) {
+        setSavedPets(MOCK_SAVED_PETS);
+        setSavedPetsLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch('/api/saved-pets');
+        if (res.ok) {
+          const { pets: data } = await res.json();
+          if (!cancelled) setSavedPets(data || []);
+        }
+      } catch {
+        // ignore — saved pets are optional
+      } finally {
+        if (!cancelled) setSavedPetsLoading(false);
+      }
+    }
+    loadSavedPets();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function applySavedPet(index: number, savedPetId: string) {
+    const saved = savedPets.find((p) => p.id === savedPetId);
+    if (!saved) return;
+    updatePet(index, {
+      name: saved.name,
+      species: saved.species,
+      breed: saved.breed || '',
+      age_category: saved.age_category,
+      size_category: saved.size_category,
+      activity_level: saved.activity_level,
+      indoor_outdoor: saved.indoor_outdoor,
+      anxiety_sensitivity: saved.anxiety_sensitivity,
+      escape_risk: saved.escape_risk,
+      mobility_limitations: saved.mobility_limitations || '',
+      special_notes: saved.special_notes || '',
+      client_name: saved.client_name || '',
+      saved_pet_id: saved.id,
+      save_for_next_time: false,
+    });
+  }
 
   async function handleExtract() {
     if (!listingText.trim() || listingText.trim().length < 20) {
@@ -225,6 +280,38 @@ export default function QuickAnalyzePage() {
       }
 
       const data = await res.json();
+
+      await Promise.allSettled(
+        pets.map(async (pet) => {
+          if (pet.save_for_next_time && !pet.saved_pet_id) {
+            await fetch('/api/saved-pets', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                client_name: pet.client_name?.trim() || null,
+                name: pet.name,
+                species: pet.species,
+                breed: pet.breed || null,
+                age_category: pet.age_category,
+                size_category: pet.size_category,
+                activity_level: pet.activity_level,
+                indoor_outdoor: pet.indoor_outdoor,
+                mobility_limitations: pet.mobility_limitations || null,
+                anxiety_sensitivity: pet.anxiety_sensitivity,
+                escape_risk: pet.escape_risk,
+                special_notes: pet.special_notes || null,
+              }),
+            });
+          } else if (pet.saved_pet_id) {
+            await fetch(`/api/saved-pets/${pet.saved_pet_id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ touch: true }),
+            });
+          }
+        })
+      );
+
       router.push(`/analyses/${data.analysis_id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
@@ -425,6 +512,12 @@ export default function QuickAnalyzePage() {
               <div className="mb-3 flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Pet {i + 1}
+                  {pet.saved_pet_id && (
+                    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700">
+                      <Users className="h-3 w-3" />
+                      From saved
+                    </span>
+                  )}
                 </span>
                 {pets.length > 1 && (
                   <button
@@ -437,6 +530,29 @@ export default function QuickAnalyzePage() {
                   </button>
                 )}
               </div>
+
+              {savedPets.length > 0 && !pet.saved_pet_id && !pet.name && (
+                <div className="mb-3 rounded-lg border border-dashed border-brand-300 bg-brand-50/60 p-3">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-brand-700">
+                    <Users className="h-3.5 w-3.5" />
+                    Use a saved pet
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {savedPets.slice(0, 8).map((sp) => (
+                      <button
+                        key={sp.id}
+                        type="button"
+                        onClick={() => applySavedPet(i, sp.id)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-white px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100"
+                      >
+                        <PawPrint className="h-3 w-3" />
+                        {sp.name}
+                        {sp.client_name && <span className="text-brand-500/70">({sp.client_name})</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <Input
@@ -489,6 +605,34 @@ export default function QuickAnalyzePage() {
                     {pet.size_category} size, {pet.activity_level.replace('_', ' ')} activity, {pet.escape_risk} escape risk.
                     {findBreedDefaults(pet.breed)?.notes && <span className="block mt-0.5 italic">{findBreedDefaults(pet.breed)?.notes}</span>}
                   </div>
+                </div>
+              )}
+
+              {!pet.saved_pet_id && pet.name.trim().length > 0 && (
+                <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={pet.save_for_next_time || false}
+                      onChange={(e) => updatePet(i, { save_for_next_time: e.target.checked })}
+                      className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                    />
+                    <BookmarkPlus className="h-4 w-4 text-brand-600" />
+                    <span className="font-medium">Save this pet for next time</span>
+                  </label>
+                  {pet.save_for_next_time && (
+                    <div className="mt-2">
+                      <Input
+                        label="Client name (optional)"
+                        placeholder="e.g., Smith family"
+                        value={pet.client_name || ''}
+                        onChange={(e) => updatePet(i, { client_name: e.target.value })}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Helps you find this pet later when you have multiple clients.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

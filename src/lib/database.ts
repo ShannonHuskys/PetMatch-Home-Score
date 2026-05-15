@@ -6,6 +6,7 @@ import type {
   AnalysisPhoto,
   UserSettings,
   PropertyWithRelations,
+  SavedPet,
 } from '@/types/database';
 
 export async function getPropertiesForUser(
@@ -175,4 +176,66 @@ export async function upsertUserSettings(
 
   if (error) throw error;
   return data;
+}
+
+export async function getSavedPetsForUser(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<SavedPet[]> {
+  const { data, error } = await supabase
+    .from('saved_pets')
+    .select('*')
+    .eq('user_id', userId)
+    .order('last_used_at', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function createSavedPet(
+  supabase: SupabaseClient,
+  data: Partial<SavedPet>
+): Promise<SavedPet> {
+  const { data: pet, error } = await supabase
+    .from('saved_pets')
+    .insert(data)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return pet;
+}
+
+export async function updateSavedPet(
+  supabase: SupabaseClient,
+  id: string,
+  updates: Partial<SavedPet>
+): Promise<SavedPet> {
+  const { data, error } = await supabase
+    .from('saved_pets')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteSavedPet(
+  supabase: SupabaseClient,
+  id: string
+): Promise<void> {
+  const { error } = await supabase.from('saved_pets').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function touchSavedPet(
+  supabase: SupabaseClient,
+  id: string
+): Promise<void> {
+  await supabase
+    .from('saved_pets')
+    .update({ last_used_at: new Date().toISOString() })
+    .eq('id', id);
 }

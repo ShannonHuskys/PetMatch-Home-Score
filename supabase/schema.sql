@@ -127,6 +127,33 @@ create table public.user_settings (
 create index idx_user_settings_user on public.user_settings(user_id);
 
 -- =============================================================
+-- SAVED PETS (reusable client pet profiles)
+-- =============================================================
+create table public.saved_pets (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  client_name text,
+  name text not null,
+  species text not null default 'dog',
+  breed text,
+  age_category text default 'adult',
+  size_category text default 'medium',
+  activity_level text default 'moderate',
+  indoor_outdoor text default 'both',
+  mobility_limitations text,
+  anxiety_sensitivity text default 'low',
+  escape_risk text default 'low',
+  special_notes text,
+  photo_url text,
+  last_used_at timestamptz default now(),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create index idx_saved_pets_user on public.saved_pets(user_id);
+create index idx_saved_pets_last_used on public.saved_pets(user_id, last_used_at desc);
+
+-- =============================================================
 -- AUTO-UPDATE TIMESTAMPS
 -- =============================================================
 create or replace function public.handle_updated_at()
@@ -149,6 +176,9 @@ create trigger analyses_updated_at before update on public.analyses
 create trigger user_settings_updated_at before update on public.user_settings
   for each row execute function public.handle_updated_at();
 
+create trigger saved_pets_updated_at before update on public.saved_pets
+  for each row execute function public.handle_updated_at();
+
 -- =============================================================
 -- ROW LEVEL SECURITY
 -- =============================================================
@@ -157,6 +187,7 @@ alter table public.pet_profiles enable row level security;
 alter table public.analyses enable row level security;
 alter table public.analysis_photos enable row level security;
 alter table public.user_settings enable row level security;
+alter table public.saved_pets enable row level security;
 
 create policy "Users can manage own properties"
   on public.properties for all using (auth.uid() = user_id);
@@ -172,6 +203,9 @@ create policy "Users can manage own photos"
 
 create policy "Users can manage own settings"
   on public.user_settings for all using (auth.uid() = user_id);
+
+create policy "Users can manage own saved pets"
+  on public.saved_pets for all using (auth.uid() = user_id);
 
 -- =============================================================
 -- STORAGE BUCKET

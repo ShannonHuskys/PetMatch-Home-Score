@@ -111,6 +111,27 @@ export interface UserSettings {
   updated_at: string;
 }
 
+export interface SavedPet {
+  id: string;
+  user_id: string;
+  client_name: string | null;
+  name: string;
+  species: 'dog' | 'cat' | 'bird' | 'rabbit' | 'other';
+  breed: string | null;
+  age_category: 'puppy_kitten' | 'young' | 'adult' | 'senior';
+  size_category: 'tiny' | 'small' | 'medium' | 'large' | 'giant';
+  activity_level: 'very_low' | 'low' | 'moderate' | 'high' | 'very_high';
+  indoor_outdoor: 'indoor' | 'outdoor' | 'both';
+  mobility_limitations: string | null;
+  anxiety_sensitivity: 'low' | 'moderate' | 'high';
+  escape_risk: 'low' | 'moderate' | 'high';
+  special_notes: string | null;
+  photo_url: string | null;
+  last_used_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ScoreDetail {
   score: number;
   reasoning: string;
