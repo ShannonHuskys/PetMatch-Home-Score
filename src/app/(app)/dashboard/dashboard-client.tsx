@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import {
-  PlusCircle,
   MapPin,
   Home,
   PawPrint,
   ChevronRight,
+  Sparkles,
 } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card } from '@/components/ui/card';
@@ -36,9 +36,9 @@ export function DashboardClient({ properties }: DashboardClientProps) {
         title="Dashboard"
         description="Your property analyses at a glance"
         action={
-          <Link href="/analyses/new">
+          <Link href="/analyses/quick">
             <Button>
-              <PlusCircle className="h-4 w-4" />
+              <Sparkles className="h-4 w-4" />
               New Analysis
             </Button>
           </Link>
@@ -49,12 +49,12 @@ export function DashboardClient({ properties }: DashboardClientProps) {
         <EmptyState
           icon={Home}
           title="No analyses yet"
-          description="Create your first property analysis to see how well it suits your client's pets."
+          description="Paste a listing, pick your client's pet, and get a branded report in under a minute."
         >
-          <Link href="/analyses/new">
+          <Link href="/analyses/quick">
             <Button>
-              <PlusCircle className="h-4 w-4" />
-              Create First Analysis
+              <Sparkles className="h-4 w-4" />
+              Try Quick Analyze
             </Button>
           </Link>
         </EmptyState>

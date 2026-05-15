@@ -270,7 +270,10 @@ export default function NewAnalysisPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="New Analysis" description="Evaluate a property for pet suitability" />
+      <PageHeader
+        title="Advanced Entry"
+        description="Full manual form. Most agents should use Quick Analyze instead — paste a listing and get results in seconds."
+      />
 
       {/* Step indicator */}
       <div className="mb-8 flex items-center gap-2">

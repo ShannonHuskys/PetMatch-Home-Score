@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
-  PlusCircle,
   Settings,
   LogOut,
   Menu,
   X,
   PawPrint,
+  Sparkles,
 } from 'lucide-react';
 const isDemoMode =
   typeof window !== 'undefined' &&
@@ -19,7 +19,7 @@ const isDemoMode =
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'New Analysis', href: '/analyses/new', icon: PlusCircle },
+  { name: 'Quick Analyze', href: '/analyses/quick', icon: Sparkles },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
