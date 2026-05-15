@@ -7,7 +7,7 @@ const isDemoMode =
 
 export async function middleware(request: NextRequest) {
   if (isDemoMode) {
-    if (request.nextUrl.pathname === '/login') {
+    if (request.nextUrl.pathname === '/login' && !request.nextUrl.searchParams.has('signout')) {
       const url = request.nextUrl.clone();
       url.pathname = '/dashboard';
       return NextResponse.redirect(url);

@@ -1,7 +1,7 @@
 # PetMatch Home Score — Product Requirements Document
 
-**Version:** 1.0
-**Last Updated:** 2026-05-08
+**Version:** 2.0
+**Last Updated:** 2026-05-15
 **Status:** Active — Source of Truth for all development
 
 ---
@@ -257,64 +257,72 @@ Weighted average of the 6 dimensions. Weights shift based on pets:
 - [x] Mock data for demo mode
 - [x] Initial git commit
 
-### M1: Schema Alignment & Data Integrity
-- [ ] SQL schema updated to include ALL property columns (stories, flooring, fencing, pet amenities, HOA fields)
-- [ ] SQL schema updated to include ALL analysis columns (species_insights_json, marketing_tips_json, upgrade_suggestions_json)
-- [ ] API route (POST /api/analyses) persists ALL new fields correctly
-- [ ] API route (POST /api/analyses/[id]/rerun) persists ALL new fields correctly
-- [ ] Seed data updated to match expanded schema
-- [ ] TypeScript types verified 1:1 with SQL schema
+### M1: Schema Alignment & Data Integrity (DONE)
+- [x] SQL schema updated to include ALL property columns (stories, flooring, fencing, pet amenities, HOA fields)
+- [x] SQL schema updated to include ALL analysis columns (species_insights_json, marketing_tips_json, upgrade_suggestions_json)
+- [x] API route (POST /api/analyses) persists ALL new fields correctly
+- [x] API route (POST /api/analyses/[id]/rerun) persists ALL new fields correctly
+- [x] Seed data updated to match expanded schema (with species insights, marketing tips, upgrade suggestions)
+- [x] TypeScript types verified 1:1 with SQL schema
 
-### M2: Supabase Connected
-- [ ] Supabase project created
-- [ ] Schema migration applied
-- [ ] .env.local created with real credentials
-- [ ] Auth flow works end-to-end (sign up, sign in, sign out, session persistence)
-- [ ] CRUD operations work through UI
-- [ ] RLS policies verified (user can only see own data)
-- [ ] Storage bucket created and photo uploads work
+### M2: Supabase Connected (DONE)
+- [x] Supabase project created (PetMatch Home Score — oikqgdtqtzzpaniwjyfv)
+- [x] Schema migration applied
+- [x] .env.local created with real credentials
+- [x] Auth flow works end-to-end (sign up, sign in, sign out, session persistence)
+- [x] CRUD operations work through UI
+- [x] RLS policies verified (user can only see own data)
+- [x] Storage bucket created and photo uploads work
 
-### M3: GitHub Repository
-- [ ] Repo created on GitHub
-- [ ] Code pushed
-- [ ] .env.local NOT committed (in .gitignore)
-- [ ] README accurate
+### M3: GitHub Repository (DONE)
+- [x] Repo created on GitHub (ShannonHuskys/PetMatch-Home-Score)
+- [x] Code pushed
+- [x] .env.local NOT committed (in .gitignore)
+- [x] README accurate
 
-### M4: Full Workflow Testing
-- [ ] WF-1 (Auth): Sign up, sign in, session persists across refresh, sign out, protected routes redirect
-- [ ] WF-2 (Create): Full wizard → submit → analysis created in DB → redirect to report
-- [ ] WF-3 (View): Report loads all sections, scores display correctly, visualizer works (with OpenAI key)
-- [ ] WF-4 (Print): Clean layout, all data present, prints cleanly to PDF
-- [ ] WF-5 (Dashboard): Shows all user's analyses, links work, empty state works for new users
-- [ ] WF-6 (Settings): Save and load branding name
+### M4: Full Workflow Testing (DONE)
+- [x] WF-1 (Auth): Sign up, sign in, session persists across refresh, sign out, protected routes redirect
+- [x] WF-2 (Create): Full wizard → submit → analysis created in DB → redirect to report
+- [x] WF-3 (View): Report loads all sections, scores display correctly, visualizer works (with OpenAI key)
+- [x] WF-4 (Print): Clean layout, all data present, prints cleanly to PDF
+- [x] WF-5 (Dashboard): Shows all user's analyses, links work, empty state works for new users
+- [x] WF-6 (Settings): Save and load branding name
 
-### M5: Polish & Edge Cases
-- [ ] Error handling: network failures, API errors, invalid data all handled gracefully
-- [ ] Loading states: all async operations show appropriate feedback
-- [ ] Form validation: all required fields enforced, helpful error messages
-- [ ] Mobile responsive: all pages usable on phone screens
-- [ ] Demo mode: all pages work with mock data, clear banners, no crashes
-- [ ] Demo mode: "New Analysis" shows informative message instead of crashing
-- [ ] Species icon: non-dog species don't all show cat icon
-- [ ] Print report: includes species insights, marketing tips, upgrade suggestions
-- [ ] No console errors in normal operation
+### M5: Polish & Edge Cases (DONE)
+- [x] Error handling: network failures, API errors, invalid data all handled gracefully
+- [x] Loading states: all async operations show appropriate feedback
+- [x] Form validation: all required fields enforced, helpful error messages per step
+- [x] Mobile responsive: all pages usable on phone screens
+- [x] Demo mode: all pages work with mock data, global demo banner, no crashes
+- [x] Demo mode: "New Analysis" redirects to mock analysis, loading cleared properly
+- [x] Demo mode: Sign out works (lands on login, does not loop back to dashboard)
+- [x] Demo mode: Re-run shows informative message instead of 401
+- [x] Species icon: non-dog species use PawPrint fallback (not cat for everything)
+- [x] Print report: includes species insights (must_haves_met/missing), marketing tips, upgrade suggestions with impact badges
+- [x] Pet visualizer: shows error message when DALL-E unavailable
+- [x] No console errors in normal operation
 
 ---
 
-## 7. Known Issues (from Audit)
+## 7. Known Issues (from Audit) — ALL RESOLVED
 
-These MUST be resolved before M2:
-
-| # | Issue | Severity | Fix |
-|---|-------|----------|-----|
-| 1 | SQL `properties` table missing 15+ columns that forms/API expect | **Critical** | Update schema.sql with all Property fields |
-| 2 | SQL `analyses` table missing `species_insights_json`, `marketing_tips_json`, `upgrade_suggestions_json` | **Critical** | Add columns to schema |
-| 3 | `POST /api/analyses` never persists species_insights, marketing_tips, upgrade_suggestions to DB | **Critical** | Update insert to include these fields |
-| 4 | Demo mode: "New Analysis" submit hits API which returns 401 | **High** | Add demo mode handling in wizard submit |
-| 5 | Print report missing species insights, marketing tips, upgrade suggestions sections | **Medium** | Add sections to print-report-client.tsx |
-| 6 | Species icon shows Cat for all non-dog species | **Low** | Add generic pet icon fallback |
-| 7 | `createServiceClient` exported but never used | **Low** | Remove or document |
-| 8 | Seed data doesn't include extended property fields | **Medium** | Update seed.sql |
+| # | Issue | Severity | Status | Resolution |
+|---|-------|----------|--------|------------|
+| 1 | SQL `properties` table missing 15+ columns | **Critical** | **FIXED** | schema.sql updated with all Property fields |
+| 2 | SQL `analyses` table missing insight columns | **Critical** | **FIXED** | Added species_insights_json, marketing_tips_json, upgrade_suggestions_json |
+| 3 | API never persists insight fields | **Critical** | **FIXED** | Both POST routes now persist all fields |
+| 4 | Demo "New Analysis" submit hits API → 401 | **High** | **FIXED** | Redirects to mock analysis, loading cleared |
+| 5 | Print report missing insight sections | **Medium** | **FIXED** | All sections added; field names aligned with SpeciesInsight type |
+| 6 | Species icon shows Cat for all non-dog | **Low** | **FIXED** | Uses PawPrint fallback for non-dog/non-cat |
+| 7 | `createServiceClient` unused export | **Low** | **FIXED** | Removed |
+| 8 | Seed data missing extended fields | **Medium** | **FIXED** | seed.sql includes all property + analysis fields |
+| 9 | Demo sign-out loops back to dashboard | **Medium** | **FIXED** | Middleware allows /login?signout=true |
+| 10 | No global demo banner | **Low** | **FIXED** | App shell shows demo banner on all pages |
+| 11 | Pet visualizer silent on DALL-E failure | **Medium** | **FIXED** | Shows "unavailable" message |
+| 12 | Demo re-run returns 401 silently | **Medium** | **FIXED** | Shows informative message |
+| 13 | Wizard step validation too minimal | **Medium** | **FIXED** | Address >=5 chars, all pet names required |
+| 14 | Print `must_haves` field mismatch | **High** | **FIXED** | Aligned to `must_haves_met`/`must_haves_missing` |
+| 15 | Print `roi_note` doesn't exist on type | **Medium** | **FIXED** | Replaced with `impact` badge |
 
 ---
 

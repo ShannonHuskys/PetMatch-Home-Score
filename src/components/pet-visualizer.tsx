@@ -16,11 +16,13 @@ export function PetVisualizer({ analysisId, pets, scenes: initialScenes }: PetVi
   const [selectedPet, setSelectedPet] = useState<PetProfile>(pets[0]);
   const [scenes, setScenes] = useState<VisualizationScene[]>(initialScenes);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const [sceneError, setSceneError] = useState<string | null>(null);
 
   const petScenes = scenes.filter((s) => s.id.startsWith(selectedPet.id));
 
   async function generateScene(sceneId: string) {
     setGeneratingId(sceneId);
+    setSceneError(null);
     setScenes((prev) =>
       prev.map((s) => (s.id === sceneId ? { ...s, loading: true } : s))
     );
@@ -40,11 +42,13 @@ export function PetVisualizer({ analysisId, pets, scenes: initialScenes }: PetVi
           )
         );
       } else {
+        setSceneError('AI visualization is currently unavailable. An OpenAI API key is required.');
         setScenes((prev) =>
           prev.map((s) => (s.id === sceneId ? { ...s, loading: false } : s))
         );
       }
     } catch {
+      setSceneError('Failed to generate image. Please check your connection and try again.');
       setScenes((prev) =>
         prev.map((s) => (s.id === sceneId ? { ...s, loading: false } : s))
       );
@@ -81,6 +85,12 @@ export function PetVisualizer({ analysisId, pets, scenes: initialScenes }: PetVi
               {pet.name}
             </button>
           ))}
+        </div>
+      )}
+
+      {sceneError && (
+        <div className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {sceneError}
         </div>
       )}
 

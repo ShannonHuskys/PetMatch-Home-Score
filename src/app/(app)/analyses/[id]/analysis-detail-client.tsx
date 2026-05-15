@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { ScoreRing, ScoreBadge } from '@/components/ui/score-ring';
 import { PetVisualizer } from '@/components/pet-visualizer';
 import { getAvailableScenes } from '@/services/pet-visualizer';
+import { isDemoMode } from '@/lib/demo-mode';
 import type { Analysis, Property, PetProfile, AnalysisPhoto, VisualizationScene, SpeciesInsight, UpgradeSuggestion } from '@/types/database';
 
 interface Props {
@@ -36,22 +37,31 @@ interface Props {
 export function AnalysisDetailClient({ analysis, property, pets, photos }: Props) {
   const router = useRouter();
   const [rerunning, setRerunning] = useState(false);
+  const [rerunError, setRerunError] = useState<string | null>(null);
 
   const allScenes: VisualizationScene[] = pets.flatMap((pet) =>
     getAvailableScenes(property, pet)
   );
 
   async function handleRerun() {
+    if (isDemoMode) {
+      setRerunError('Re-run is not available in demo mode. Connect Supabase to enable.');
+      return;
+    }
     setRerunning(true);
+    setRerunError(null);
     try {
       const res = await fetch(`/api/analyses/${analysis.id}/rerun`, { method: 'POST' });
       if (res.ok) {
         router.refresh();
+      } else {
+        setRerunError('Failed to re-run analysis. Please try again.');
       }
     } catch {
-      // silently fail
+      setRerunError('Network error. Please check your connection.');
+    } finally {
+      setRerunning(false);
     }
-    setRerunning(false);
   }
 
   const redFlags = Array.isArray(analysis.red_flags_json) ? analysis.red_flags_json : [];
@@ -87,6 +97,12 @@ export function AnalysisDetailClient({ analysis, property, pets, photos }: Props
           </div>
         }
       />
+
+      {rerunError && (
+        <div className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          {rerunError}
+        </div>
+      )}
 
       {/* Overall Score */}
       <Card className="mb-6">
@@ -170,7 +186,7 @@ export function AnalysisDetailClient({ analysis, property, pets, photos }: Props
           {Object.entries(speciesInsights).map(([species, insight]) => {
             if (!insight) return null;
             const si = insight as SpeciesInsight;
-            const SpeciesIcon = species === 'dog' ? Dog : Cat;
+            const SpeciesIcon = species === 'dog' ? Dog : species === 'cat' ? Cat : PawPrint;
             const riskColors = { low: 'text-green-600 bg-green-50', moderate: 'text-amber-600 bg-amber-50', high: 'text-red-600 bg-red-50' };
             return (
               <Card key={species}>

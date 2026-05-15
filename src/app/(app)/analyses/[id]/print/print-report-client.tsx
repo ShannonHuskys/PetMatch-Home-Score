@@ -186,9 +186,29 @@ export function PrintReportClient({ analysis, property, pets, brandingName }: Pr
                   <h4 className="mb-2 text-sm font-semibold capitalize text-gray-800">
                     {species === 'dog' ? 'Dog Owner' : species === 'cat' ? 'Cat Owner' : species} Perspective
                   </h4>
+                  {insight.must_haves_met && insight.must_haves_met.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-xs font-medium text-green-600">Must-Haves Met</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {insight.must_haves_met.map((m: string, i: number) => (
+                          <li key={i} className="text-xs text-gray-600">+ {m}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {insight.must_haves_missing && insight.must_haves_missing.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-xs font-medium text-red-600">Must-Haves Missing</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {insight.must_haves_missing.map((m: string, i: number) => (
+                          <li key={i} className="text-xs text-gray-600">- {m}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   {insight.strengths && insight.strengths.length > 0 && (
                     <div className="mb-2">
-                      <p className="text-xs font-medium text-green-600">Strengths</p>
+                      <p className="text-xs font-medium text-gray-500">Strengths</p>
                       <ul className="mt-1 space-y-0.5">
                         {insight.strengths.map((s: string, i: number) => (
                           <li key={i} className="text-xs text-gray-600">+ {s}</li>
@@ -197,21 +217,11 @@ export function PrintReportClient({ analysis, property, pets, brandingName }: Pr
                     </div>
                   )}
                   {insight.concerns && insight.concerns.length > 0 && (
-                    <div className="mb-2">
+                    <div>
                       <p className="text-xs font-medium text-amber-600">Concerns</p>
                       <ul className="mt-1 space-y-0.5">
                         {insight.concerns.map((c: string, i: number) => (
                           <li key={i} className="text-xs text-gray-600">- {c}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {insight.must_haves && insight.must_haves.length > 0 && (
-                    <div>
-                      <p className="text-xs font-medium text-blue-600">Must-Haves</p>
-                      <ul className="mt-1 space-y-0.5">
-                        {insight.must_haves.map((m: string, i: number) => (
-                          <li key={i} className="text-xs text-gray-600">* {m}</li>
                         ))}
                       </ul>
                     </div>
@@ -250,14 +260,20 @@ export function PrintReportClient({ analysis, property, pets, brandingName }: Pr
                 <div key={i} className="rounded-lg border border-gray-100 p-3">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-gray-800">{upgrade.name}</p>
-                    {upgrade.estimated_cost && (
-                      <span className="text-xs text-gray-500">{upgrade.estimated_cost}</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {upgrade.estimated_cost && (
+                        <span className="text-xs text-gray-500">{upgrade.estimated_cost}</span>
+                      )}
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        upgrade.impact === 'high' ? 'bg-green-50 text-green-700' :
+                        upgrade.impact === 'medium' ? 'bg-amber-50 text-amber-700' :
+                        'bg-gray-50 text-gray-600'
+                      }`}>
+                        {upgrade.impact} impact
+                      </span>
+                    </div>
                   </div>
                   <p className="mt-1 text-xs text-gray-600">{upgrade.description}</p>
-                  {upgrade.roi_note && (
-                    <p className="mt-1 text-xs text-brand-600">{upgrade.roi_note}</p>
-                  )}
                 </div>
               ))}
             </div>

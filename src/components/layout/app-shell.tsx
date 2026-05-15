@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   async function handleSignOut() {
     if (isDemoMode) {
-      router.push('/login');
+      router.push('/login?signout=true');
       return;
     }
     const { createClient } = await import('@/lib/supabase/client');
@@ -140,6 +140,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
 
+        {isDemoMode && (
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800">
+            <strong>Demo Mode</strong> — Using mock data. Connect Supabase to enable full functionality.
+          </div>
+        )}
         <main className="flex-1 px-4 py-8 lg:px-8">{children}</main>
       </div>
     </div>

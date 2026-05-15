@@ -229,6 +229,7 @@ export default function NewAnalysisPage() {
 
     if (isDemoMode) {
       await new Promise((r) => setTimeout(r, 1500));
+      setLoading(false);
       router.push('/analyses/mock-analysis-1');
       return;
     }
@@ -557,8 +558,19 @@ export default function NewAnalysisPage() {
             </div>
           </Card>
 
+          {error && step === 0 && (
+            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          )}
+
           <div className="flex justify-end">
-            <Button onClick={() => setStep(1)} disabled={!property.address}>
+            <Button onClick={() => {
+              if (!property.address || property.address.trim().length < 5) {
+                setError('Please enter a valid address (at least 5 characters).');
+                return;
+              }
+              setError(null);
+              setStep(1);
+            }}>
               Next: Pet Profiles
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -704,12 +716,24 @@ export default function NewAnalysisPage() {
             Add Another Pet
           </Button>
 
+          {error && step === 1 && (
+            <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+          )}
+
           <div className="flex justify-between">
-            <Button variant="outline" onClick={() => setStep(0)}>
+            <Button variant="outline" onClick={() => { setError(null); setStep(0); }}>
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
-            <Button onClick={() => setStep(2)} disabled={!pets[0]?.name}>
+            <Button onClick={() => {
+              const emptyPets = pets.filter(p => !p.name || p.name.trim().length < 1);
+              if (emptyPets.length > 0) {
+                setError('Please enter a name for every pet.');
+                return;
+              }
+              setError(null);
+              setStep(2);
+            }}>
               Review
               <ArrowRight className="h-4 w-4" />
             </Button>
