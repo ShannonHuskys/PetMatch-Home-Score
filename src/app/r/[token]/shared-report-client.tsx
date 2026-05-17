@@ -69,7 +69,7 @@ export function SharedReportClient({ analysis, property, pets, brandingName }: P
     <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-sage-50">
       {/* Sticky branded header */}
       <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
               <PawPrint className="h-5 w-5" />
@@ -85,7 +85,7 @@ export function SharedReportClient({ analysis, property, pets, brandingName }: P
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
+      <main className="mx-auto max-w-5xl px-4 pb-16 pt-6">
         {/* Hero */}
         <div className="mb-6 rounded-2xl bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
@@ -154,7 +154,7 @@ export function SharedReportClient({ analysis, property, pets, brandingName }: P
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
             How this home scores
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {SUB_SCORES.map(({ key, label, desc }) => {
               const score = (analysis as unknown as Record<string, number | null>)[key];
               if (score == null) return null;
