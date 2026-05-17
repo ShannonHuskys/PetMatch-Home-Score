@@ -495,7 +495,7 @@ export default function QuickAnalyzePage() {
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PawPrint className="h-5 w-5 text-brand-600" />
-            <CardTitle>3. Who's the pet?</CardTitle>
+            <CardTitle>3. Who&apos;s the pet?</CardTitle>
           </div>
           <Button variant="ghost" size="sm" onClick={addPet}>
             <Plus className="h-3.5 w-3.5" />
@@ -503,7 +503,7 @@ export default function QuickAnalyzePage() {
           </Button>
         </div>
         <p className="mb-4 text-sm text-gray-500">
-          Just name and breed is enough — we'll fill in size, activity, and escape risk from the breed.
+          Just name and breed is enough — we&apos;ll fill in size, activity, and escape risk from the breed.
         </p>
 
         <div className="space-y-4">
@@ -639,7 +639,7 @@ export default function QuickAnalyzePage() {
               <details className="mt-3">
                 <summary className="cursor-pointer text-xs font-medium text-gray-500 hover:text-gray-700">
                   <Edit3 className="mr-1 inline h-3 w-3" />
-                  Fine-tune this pet's profile
+                  Fine-tune this pet&apos;s profile
                 </summary>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <Select

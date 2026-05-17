@@ -17,12 +17,14 @@ import {
   TrendingUp,
   Megaphone,
   Wrench,
+  Share2,
 } from 'lucide-react';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScoreRing, ScoreBadge } from '@/components/ui/score-ring';
 import { PetVisualizer } from '@/components/pet-visualizer';
+import { ShareDialog } from '@/components/share-dialog';
 import { getAvailableScenes } from '@/services/pet-visualizer';
 import { isDemoMode } from '@/lib/demo-mode';
 import type { Analysis, Property, PetProfile, AnalysisPhoto, VisualizationScene, SpeciesInsight, UpgradeSuggestion } from '@/types/database';
@@ -38,6 +40,7 @@ export function AnalysisDetailClient({ analysis, property, pets, photos }: Props
   const router = useRouter();
   const [rerunning, setRerunning] = useState(false);
   const [rerunError, setRerunError] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const allScenes: VisualizationScene[] = pets.flatMap((pet) =>
     getAvailableScenes(property, pet)
@@ -83,7 +86,11 @@ export function AnalysisDetailClient({ analysis, property, pets, photos }: Props
         title={property.address}
         description={[property.city, property.state, property.postal_code].filter(Boolean).join(', ')}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setShareOpen(true)}>
+              <Share2 className="h-4 w-4" />
+              Share with client
+            </Button>
             <Button variant="outline" onClick={handleRerun} loading={rerunning}>
               <RefreshCw className="h-4 w-4" />
               Re-run
@@ -96,6 +103,16 @@ export function AnalysisDetailClient({ analysis, property, pets, photos }: Props
             </Link>
           </div>
         }
+      />
+
+      <ShareDialog
+        analysisId={analysis.id}
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        initialShareToken={analysis.share_token}
+        initialShareEnabled={analysis.share_enabled}
+        initialShareViews={analysis.share_views}
+        initialLastViewedAt={analysis.last_viewed_at}
       />
 
       {rerunError && (

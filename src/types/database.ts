@@ -90,6 +90,10 @@ export interface Analysis {
   marketing_tips_json: string[] | null;
   upgrade_suggestions_json: UpgradeSuggestion[] | null;
   map_context_json: MapContext | null;
+  share_token: string | null;
+  share_enabled: boolean;
+  share_views: number;
+  last_viewed_at: string | null;
   created_at: string;
   updated_at: string;
 }

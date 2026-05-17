@@ -92,12 +92,17 @@ create table public.analyses (
   species_insights_json jsonb default '{}'::jsonb,
   marketing_tips_json jsonb default '[]'::jsonb,
   upgrade_suggestions_json jsonb default '[]'::jsonb,
+  share_token text unique,
+  share_enabled boolean default false,
+  share_views integer default 0,
+  last_viewed_at timestamptz,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
 
 create index idx_analyses_property on public.analyses(property_id);
 create index idx_analyses_user on public.analyses(user_id);
+create index idx_analyses_share_token on public.analyses(share_token) where share_token is not null;
 
 -- =============================================================
 -- ANALYSIS PHOTOS

@@ -44,7 +44,8 @@ export async function middleware(request: NextRequest) {
 
   const isLoginPage = request.nextUrl.pathname === '/login';
   const isAuthCallback = request.nextUrl.pathname === '/api/auth/callback';
-  const isPublicRoute = isLoginPage || isAuthCallback;
+  const isSharedReport = request.nextUrl.pathname.startsWith('/r/');
+  const isPublicRoute = isLoginPage || isAuthCallback || isSharedReport;
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
